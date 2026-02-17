@@ -304,23 +304,7 @@ def pformat_results(pyomo_instance, pyomo_result, options):
 
                 svars['LandCap'][r, t, v] += landcap
                 
-    # Calculate the vflowout numbers(without tday and tseason)
-#    if hasattr(options, 'file_location') and os.path.join('temoa_model', 'config_sample_myopic') not in options.file_location:
-#        newflow = sum(
-#             value(m.V_FlowOut[r, p, s, d, i, t, v, o])
-#             for s in m.time_season
-#             for d in m.time_of_day
-#         )
-                 
-#        svars['NewFlowOut'][r, p, i, t, v, o] += newflow
-                
 
-    # try printing flowoutannual numbers
-#    if hasattr(options, 'file_location') and os.path.join('temoa_model', 'config_sample_myopic') not in options.file_location:
-#        for r, p, i, t, v, o in m.V_FlowOutAnnual:
-#            newflow = value(m.V_FlowOutAnnual[r, p, s, d, i, t, v, o])
-#            
-#            svars['NewFlowOut'][r, p, i, t, v, o] += newflow
                 
     # Calculate the landActivity numbers(without Period)
     if hasattr(options, 'file_location') and os.path.join('temoa_model', 'config_sample_myopic') not in options.file_location:
