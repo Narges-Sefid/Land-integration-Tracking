@@ -1866,6 +1866,47 @@ Or to set a limit across all sectors, use the keyword 'all'.
     return expr
 
 
+
+def LandLimit_Constraint(M, r, p, g):
+    # Handle multiple or 'all' regions
+    regions = set(r.split("-"))
+    if regions == {'all'}:
+        regions = M.regions
+
+    # Handle 'all' groups – we use all group names found in tech_groups for the selected regions
+    if g == 'all':
+        groups = set(gname for (_r, gname, _t) in M.tech_groups if _r in regions)
+        land_limit_key = (r, p, 'all')
+    else:
+        groups = {g}
+        land_limit_key = (r, p, g)
+
+    # Get single land_limit row (expecting a row with g = 'all' when g == 'all')
+    if land_limit_key not in M.LandLimit:
+        raise ValueError(f"Land limit not found for key: {land_limit_key}")
+
+    land_limit = value(M.LandLimit[land_limit_key])
+
+    # Coefficients for each group (customize as needed)
+    coeffs = {'Nuclear-SMR': 4.15, 'Solar-PV-Central':34.4, 'Natural-gas': 1.8, 'Bio': 4, 'BECCS': 5, 'Diesel': 5.14, 'Geo': 38.8, 'Wind': 368.3, 'Colocated': 6.5}
+
+    # Calculate land use across groups
+    total_land_use = 0
+    for g_ in groups:
+        land_group = sum(
+            M.V_CapacityAvailableByPeriodAndTech[r_, p, t]
+            for r_ in regions
+            for _r, _g, t in M.tech_groups
+            if _r == r_ and _g == g_ and (r_, p, t) in M.V_CapacityAvailableByPeriodAndTech
+        )
+        coeff = coeffs.get(g_, 1)  # Default coefficient is 1 if not listed
+        total_land_use += coeff * land_group
+
+    # Final constraint expression
+    expr = total_land_use <= land_limit
+    return expr
+
+
 def GrowthRateConstraint_rule(M, p, r, t):
     r"""
 

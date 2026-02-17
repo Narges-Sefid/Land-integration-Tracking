@@ -251,8 +251,18 @@ def temoa_create_model(name="Temoa"):
     M.EmploymentPerCapacity = Param(M.Employment_rptv, mutable=True)
     
     # Define landCapacity factors
-    M.Land_rtv = Set(dimen=3, initialize=LandCapIndices)
-    M.LandPerCapacitywoPeriod = Param(M.Land_rtv, mutable=True)
+    M.LandCapacity_rtv = Set(dimen=3, initialize=LandCapIndices)
+    M.LandPerCapacitywoPeriod = Param(M.LandCapacity_rtv, mutable=True, default=0.0)
+    
+    # Define flow out without day and season
+    M.NewFlow_rpitvo = Set(dimen=6, initialize=NewFlowOutIndices)
+    M.FlowOutwoDnS = Param(M.NewFlow_rpitvo, mutable=True, default=0.0)
+    
+    
+    
+    # Define landActivity factors
+    M.LandActivity_rtv = Set(dimen=3, initialize=LandActIndices)
+    M.LandPerActivitywoPeriod = Param(M.LandActivity_rtv, mutable=True)
 
     # Define parameters associated with user-defined constraints
     M.RegionalGlobalIndices = Set(initialize=RegionalGlobalInitializedIndices)
@@ -270,6 +280,7 @@ def temoa_create_model(name="Temoa"):
     M.GrowthRateMax = Param(M.RegionalIndices, M.tech_all)
     M.GrowthRateSeed = Param(M.RegionalIndices, M.tech_all)
     M.EmissionLimit = Param(M.RegionalGlobalIndices, M.SectorGlobalIndices, M.time_optimize, M.commodity_emissions)
+    M.LandLimit = Param(M.RegionalGlobalIndices, M.time_optimize, M.groups)
     M.EmissionActivity_reitvo = Set(dimen=6, initialize=EmissionActivityIndices)
     M.EmissionActivity = Param(M.EmissionActivity_reitvo)
     M.MinActivityGroup = Param(M.RegionalIndices, M.time_optimize, M.groups)
@@ -491,6 +502,13 @@ def temoa_create_model(name="Temoa"):
     )
     M.EmissionLimitConstraint = Constraint(
         M.EmissionLimitConstraint_rxpe, rule=EmissionLimit_Constraint
+    )
+    
+    M.LandLimitConstraint_rpg = Set(
+        dimen=3, initialize=lambda M: M.LandLimit.sparse_iterkeys()
+    )
+    M.LandLimitConstraint = Constraint(
+        M.LandLimitConstraint_rpg, rule=LandLimit_Constraint
     )
 
     from itertools import product

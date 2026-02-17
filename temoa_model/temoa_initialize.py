@@ -884,6 +884,11 @@ def EmploymentIndices(M):
 def LandCapIndices(M):
     return M.activeCapacity_rtv
 
+def NewFlowOutIndices(M):
+    return M.activeFlow_rpitvo
+
+def LandActIndices(M):
+    return M.activeCapacity_rtv
 
 def CostFixedIndices(M):
     return M.activeActivity_rptv

@@ -303,6 +303,37 @@ def pformat_results(pyomo_instance, pyomo_result, options):
                     continue
 
                 svars['LandCap'][r, t, v] += landcap
+                
+    # Calculate the vflowout numbers(without tday and tseason)
+#    if hasattr(options, 'file_location') and os.path.join('temoa_model', 'config_sample_myopic') not in options.file_location:
+#        newflow = sum(
+#             value(m.V_FlowOut[r, p, s, d, i, t, v, o])
+#             for s in m.time_season
+#             for d in m.time_of_day
+#         )
+                 
+#        svars['NewFlowOut'][r, p, i, t, v, o] += newflow
+                
+
+    # try printing flowoutannual numbers
+#    if hasattr(options, 'file_location') and os.path.join('temoa_model', 'config_sample_myopic') not in options.file_location:
+#        for r, p, i, t, v, o in m.V_FlowOutAnnual:
+#            newflow = value(m.V_FlowOutAnnual[r, p, s, d, i, t, v, o])
+#            
+#            svars['NewFlowOut'][r, p, i, t, v, o] += newflow
+                
+    # Calculate the landActivity numbers(without Period)
+    if hasattr(options, 'file_location') and os.path.join('temoa_model', 'config_sample_myopic') not in options.file_location:
+        for r, t, v in m.V_Capacity:
+            val = value(m.V_Capacity[r, t, v])
+            if abs(val) < epsilon:
+                continue
+            if (r, t, v) in m.LandPerActivitywoPeriod.sparse_iterkeys():
+                landact = abs(val) * value(m.LandPerActivitywoPeriod[r, t, v])
+                if abs(landact) < epsilon:
+                    continue
+
+                svars['LandAct'][r, t, v] += landact                
 
 
     # Calculate model costs:
@@ -553,7 +584,9 @@ def pformat_results(pyomo_instance, pyomo_result, options):
               "Costs": "Output_Costs",
               "EmissionShadowPrice": "Output_ImplicitEmissionsPrice",
               "Jobs": "Output_Employment",
-              "LandCap": "Output_LandCapwoPeriod"
+              "LandCap": "Output_LandCapwoPeriod",
+              "NewFlowOut": "Output_VFlow_Outwodns",
+              "LandAct": "Output_LandActwoPeriod"            
               }
 
     db_tables = ['time_periods', 'time_season', 'time_of_day', 'technologies', 'commodities',
