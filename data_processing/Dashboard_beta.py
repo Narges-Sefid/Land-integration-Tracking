@@ -469,7 +469,7 @@ class OutputPlotGenerator:
 
         return df
 
-    def generatePlotForCapacity(self, super_categories):
+    def generatePlotForCapacity(self, super_categories, port):
         '''
         Generates Plot for Capacity
         '''
@@ -479,7 +479,7 @@ class OutputPlotGenerator:
         df_cap = self.processData(self.capacity_output, 'capacity', super_categories)
         self.processData(None, 'sectors', super_categories)
 
-        self.makeCapacityDashboard(df_cap, df_en, super_categories)
+        self.makeCapacityDashboard(df_cap, df_en, super_categories, port)
 
         return
 
@@ -511,7 +511,7 @@ class OutputPlotGenerator:
 
         return
 
-    def makeCapacityDashboard(self, df_cap, df_en, super_categories):
+    def makeCapacityDashboard(self, df_cap, df_en, super_categories, port):
         '''
         Creates the structure of the capacity dashboard
         '''
@@ -704,7 +704,8 @@ class OutputPlotGenerator:
             ))
 
             return fig
-        app.run_server(debug=True)
+        app.run_server(debug=True, port=port)
+
 
     def makeEnergyFlowDashboard(self, dff, dfd, super_categories):
         '''
@@ -883,7 +884,8 @@ class OutputPlotGenerator:
                               hovermode='x unified')
             return fig
 
-        app.run_server(debug=True)
+        app.run_server(debug=True, port=port)
+
 
     def makeEmissionsDashboard(self, df):
         '''
@@ -982,7 +984,8 @@ class OutputPlotGenerator:
             ))
 
             return fig
-        app.run_server(debug=True)
+        app.run_server(debug=True, port=port)
+
 
     def stacked_bar_plot(self, data, years, ylabel, title, unit, column_to_stack, stack_descriptor, super_categories=False):
         '''
@@ -1303,13 +1306,15 @@ def GeneratePlot(args):
                         help="Type of Plot to be generated", choices=['capacity', 'flow', 'emissions'], required=True)
     parser.add_argument('--super', action="store_true", dest="super_categories",
                         help="Merge Technologies or not", default=False)
+    parser.add_argument('--port', type=int, default=8050)
+
 
     options = parser.parse_args(args)
     result = OutputPlotGenerator(options.input, options.type)
     error = ''  # RV
 
     if (options.type == 'capacity'):
-        error = result.generatePlotForCapacity(options.super_categories)
+        error = result.generatePlotForCapacity(options.super_categories, options.port)
     elif (options.type == 'flow'):
         error = result.generatePlotForEnergyFlow(options.super_categories)
     elif (options.type == 'emissions'):
