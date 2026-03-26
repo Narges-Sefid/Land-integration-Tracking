@@ -499,7 +499,7 @@ class OutputPlotGenerator:
 
         return
 
-    def generatePlotForEmissions(self):
+    def generatePlotForEmissions(self, port):
         '''
         Generates Plot for Emissions
         '''
@@ -507,7 +507,7 @@ class OutputPlotGenerator:
 
         df_em = self.processData(self.emissions_output,  'emissions')
 
-        self.makeEmissionsDashboard(df_em)
+        self.makeEmissionsDashboard(df_em, port)
 
         return
 
@@ -887,7 +887,7 @@ class OutputPlotGenerator:
         app.run_server(debug=True, port=port)
 
 
-    def makeEmissionsDashboard(self, df):
+    def makeEmissionsDashboard(self, df, port):
         '''
         Creates the structure of the emissions dashboard
         '''
@@ -1318,7 +1318,7 @@ def GeneratePlot(args):
     elif (options.type == 'flow'):
         error = result.generatePlotForEnergyFlow(options.super_categories)
     elif (options.type == 'emissions'):
-        error = result.generatePlotForEmissions()
+        error = result.generatePlotForEmissions(options.port)
 
 
 begin = time.time()
